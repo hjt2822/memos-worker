@@ -3506,6 +3506,16 @@
 		</header>
 		<div class='settings-content'>
 			<div class='setting-group'>
+				<h4>Language</h4>
+				<div class='setting-item'>
+					<label for='language-select'>Language</label>
+					<select id='language-select'>
+						<option value='zh'>中文</option>
+						<option value='en'>English</option>
+					</select>
+				</div>
+			</div>
+			<div class='setting-group'>
 				<h4>Interface Visibility</h4>
 				<div class='setting-item'>
 					<label for='toggle-search-bar'>Show Search</label>
@@ -3743,6 +3753,281 @@
 </html>
 
 <script>
+	// ================= 国际化支持（默认中文，可在设置中切换） =================
+	const I18N_LANG = (() => {
+		try {
+			const saved = localStorage.getItem('memos_lang');
+			return saved === 'en' ? 'en' : 'zh';
+		} catch (e) {
+			return 'zh';
+		}
+	})();
+	const I18N_ZH = {
+		"Settings": "设置",
+		"Just now": "刚刚",
+		"Theme Color": "主题颜色",
+		"Logout": "退出登录",
+		"Refresh": "刷新",
+		"More options": "更多选项",
+		"More actions": "更多操作",
+		"Back to top": "返回顶部",
+		"Copy": "复制",
+		"Copy code": "复制代码",
+		"Copied!": "已复制！",
+		"Copy failed!": "复制失败！",
+		"Cancel": "取消",
+		"Delete": "删除",
+		"Save": "保存",
+		"Saving...": "保存中...",
+		"Merge": "合并",
+		"OK": "确定",
+		"Close": "关闭",
+		"Restore": "恢复",
+		"Clear": "清除",
+		"Custom": "自定义",
+		"Username": "用户名",
+		"Password": "密码",
+		"Login": "登录",
+		"Logging in...": "登录中...",
+		"Invalid username or password.": "用户名或密码错误。",
+		"Search...": "搜索...",
+		"Search or select tag...": "搜索或选择标签...",
+		"Clear tag filter": "清除标签筛选",
+		"Show All Notes": "显示全部备忘",
+		"Days": "天数",
+		"Memos": "备忘",
+		"Tags": "标签",
+		"Timeline": "时间线",
+		"Attachments": "附件",
+		"Files": "文件",
+		"Home": "首页",
+		"Favorites": "收藏",
+		"Archive": "归档",
+		"Docs": "知识库",
+		"Open Docs": "打开知识库",
+		"No tags yet": "暂无标签",
+		"No tags found": "未找到标签",
+		"No tags yet.": "暂无标签。",
+		"Nothing here yet.": "这里还没有内容。",
+		"Failed to load attachments.": "加载附件失败。",
+		"Error loading timeline.": "加载时间线失败。",
+		"Error loading tags.": "加载标签失败。",
+		"Loading more...": "加载更多...",
+		"No more notes.": "没有更多备忘。",
+		"Loading...": "加载中...",
+		"Write in Markdown...": "用 Markdown 书写...",
+		"Insert tag (#)": "插入标签 (#)",
+		"Insert image": "插入图片",
+		"Select files": "选择文件",
+		"Fullscreen Editor": "全屏编辑器",
+		"Fullscreen Edit": "全屏编辑",
+		"Toggle Preview": "切换预览",
+		"Toggle Split View": "切换分栏",
+		"Split View": "分栏视图",
+		"Preview": "预览",
+		"Toggle waterfall mode": "切换瀑布流模式",
+		"Toggle wide mode": "切换宽屏模式",
+		"Keep Time": "保留时间",
+		"Font Size": "字号",
+		"Font Color": "字体颜色",
+		"Size": "字号",
+		"Bold (Ctrl+B)": "加粗 (Ctrl+B)",
+		"Underline": "下划线",
+		"Italic (Ctrl+I)": "斜体 (Ctrl+I)",
+		"Strikethrough": "删除线",
+		"Insert Link (Ctrl+K)": "插入链接 (Ctrl+K)",
+		"Blockquote": "引用",
+		"Unordered List": "无序列表",
+		"Insert Code Block": "插入代码块",
+		"Link": "链接",
+		"Img": "图片",
+		"Code": "代码",
+		"Light Mode": "浅色模式",
+		"Dark Mode": "深色模式",
+		"Memos here...": "在此书写备忘...",
+		"Get public link": "获取公开链接",
+		"Delete file": "删除文件",
+		"Delete Note": "删除备忘",
+		"Favorite": "收藏",
+		"Unfavorite": "取消收藏",
+		"Pin": "置顶",
+		"Unpin": "取消置顶",
+		"Share": "分享",
+		"Edit": "编辑",
+		"Add files": "添加文件",
+		"Pinned": "已置顶",
+		"Collapse": "收起",
+		"Show more": "显示更多",
+		"Previous month": "上个月",
+		"Next month": "下个月",
+		"A file is required for upload.": "上传需要选择一个文件。",
+		"Upload failed": "上传失败",
+		"Imgur Client ID is not set in settings.": "尚未在设置中配置 Imgur Client ID。",
+		"Unknown error": "未知错误",
+		"Image upload failed: {0}": "图片上传失败：{0}",
+		"Failed to copy link.": "复制链接失败。",
+		"Are you sure you want to revoke the public links immediately? This action cannot be undone.": "确定要立即撤销这些公开链接吗？此操作无法撤销。",
+		"Failed to revoke share link.": "撤销分享链接失败。",
+		"Sharing has been successfully revoked.": "分享链接已成功撤销。",
+		"Failed to update expiration.": "更新有效期失败。",
+		"Failed to update favorite status.": "更新收藏状态失败。",
+		"Failed to update pin status.": "更新置顶状态失败。",
+		"Failed to generate share link.": "生成分享链接失败。",
+		"Failed to generate link.": "生成链接失败。",
+		"Are you sure you want to delete this note?": "确定要删除这条备忘吗？",
+		"Failed to load attachments.": "加载附件失败。",
+		"No items to display.": "暂无显示内容。",
+		"Could not load activity data.": "无法加载活动数据。",
+		"Are you sure you want to permanently delete this file? This action cannot be undone.": "确定要永久删除这个文件吗？此操作无法撤销。",
+		"Failed to delete file.": "删除文件失败。",
+		"File and empty note removed.": "文件与空备忘已删除。",
+		"File deleted successfully.": "文件已删除。",
+		"Failed to initialize the application. Please check your connection and try again.": "应用初始化失败，请检查网络连接后重试。",
+		"Nothing here yet.": "这里还没有内容。",
+		"Merge failed.": "合并失败。",
+		"Notes merged successfully!": "备忘合并成功！",
+		"Error: Original note element not found.": "错误：未找到原始备忘元素。",
+		"Content or a file is required.": "需要输入内容或添加文件。",
+		"Enter the URL:": "请输入链接 URL：",
+		"Enter the image URL:": "请输入图片链接 URL：",
+		"Failed to unpin note.": "取消置顶失败。",
+		"Revoking...": "撤销中...",
+		"Updating...": "更新中...",
+		"Updated!": "已更新！",
+		"Error!": "出错！",
+		"Add separator line (---) between notes": "在备忘之间添加分隔线 (---)",
+		"If unchecked, the note's timestamp will be updated upon saving.": "若取消勾选，保存时备忘时间戳将更新为当前时间。",
+		"If checked, the note's timestamp will not be updated upon saving.": "若勾选，保存时备忘时间戳将保持不变。",
+		"Share Memo": "分享备忘",
+		"Generating link...": "正在生成链接...",
+		"Anyone with these public links can view this memo.": "拥有这些公开链接的任何人都可以查看此备忘。",
+		"Display Link": "展示链接",
+		"Raw Content Link": "原始内容链接",
+		"Expires in:": "有效期：",
+		"1 Hour": "1 小时",
+		"4 Hour": "4 小时",
+		"12 Hours": "12 小时",
+		"1 Day": "1 天",
+		"7 Days": "7 天",
+		"Never": "永久",
+		"Revoke Now (Expire Immediately)": "立即撤销（即刻过期）",
+		"Interface Visibility": "界面可见性",
+		"Show Search": "显示搜索框",
+		"Show Stats": "显示统计",
+		"Show Calendar": "显示日历",
+		"Show Heatmap": "显示热力图",
+		"Show Tags": "显示标签",
+		"Show Timeline": "显示时间线",
+		"Show Right Sidebar": "显示右侧栏",
+		"Enable Date Grouping": "启用日期分组",
+		"Enable Content Truncation": "启用内容折叠",
+		"Feature Visibility": "功能可见性",
+		"Show Favorites": "显示收藏",
+		"Show Archive": "显示归档",
+		"Enable Pinning": "启用置顶",
+		"Enable Sharing": "启用分享",
+		"Show Docs Link": "显示知识库入口",
+		"Language": "语言",
+		"Background": "背景",
+		"Image URL": "图片 URL",
+		"Enter image URL...": "输入图片 URL...",
+		"Or Upload": "或上传",
+		"Glass Effect": "玻璃模糊效果",
+		"Background Opacity": "背景不透明度",
+		"Surface": "面板",
+		"Base Color": "基础颜色",
+		"Click to open color picker": "点击打开取色器",
+		"Opacity": "不透明度",
+		"Restore Defaults": "恢复默认",
+		"Image Paste Upload": "图片粘贴上传",
+		"Local (via Worker & R2)": "本地（通过 Worker 与 R2）",
+		"Imgur (Requires Client ID)": "Imgur（需要 Client ID）",
+		"Imgur Client ID": "Imgur Client ID",
+		"Enter your Imgur Client ID...": "输入你的 Imgur Client ID...",
+		"Telegram Proxy": "Telegram 代理",
+		"Enable Video&File Proxy": "启用视频与文件代理",
+		"Waterfall Mode": "瀑布流模式",
+		"Hide Editor in Waterfall Mode": "瀑布流模式下隐藏编辑器",
+		"Card Width (px)": "卡片宽度 (px)"
+	};
+	function T(text, ...args) {
+		let out = text;
+		if (I18N_LANG === 'zh') {
+			out = Object.prototype.hasOwnProperty.call(I18N_ZH, text) ? I18N_ZH[text] : text;
+		}
+		if (args && args.length) {
+			out = out.replace(/\{(\d+)\}/g, (m, idx) => (args[idx] !== undefined ? args[idx] : m));
+		}
+		return out;
+	}
+	function trMessage(text) {
+		if (I18N_LANG !== 'zh') return text;
+		if (Object.prototype.hasOwnProperty.call(I18N_ZH, text)) return I18N_ZH[text];
+		return String(text)
+			.replace(/^Error:\s*/, '错误：')
+			.replace(/^Error saving settings:\s*/, '保存设置出错：')
+			.replace(/^Image upload failed:\s*/, '图片上传失败：')
+			.replace(/^Update failed:\s*/, '更新失败：')
+			.replace(/^Imgur proxy failed:\s*/, 'Imgur 代理失败：')
+			.replace(/^Local upload failed:\s*/, '本地上传失败：')
+			.replace(/^Failed to load\s*/, '无法加载')
+			.replace(/^Failed to save\s*/, '无法保存')
+			.replace(/^Failed to revoke\s*/, '撤销失败：')
+			.replace(/^Failed to update\s*/, '更新失败：')
+			.replace(/^Failed to delete\s*/, '删除失败：')
+			.replace(/^Failed to generate\s*/, '生成失败：')
+			.replace(/^Failed to copy\s*/, '复制失败：')
+			.replace(/^Failed to fetch\s*/, '获取失败：')
+			.replace(/^Failed to /, '操作失败：')
+			.replace(/^Server check failed with status: /, '服务器检查失败，状态码：');
+	}
+	document.documentElement.lang = I18N_LANG === 'zh' ? 'zh-CN' : 'en';
+
+	function notesCountLabel(count) {
+		if (I18N_LANG === 'zh') return `${count} 条备忘`;
+		return count === 1 ? '1 note' : `${count} notes`;
+	}
+	function setI18nLanguage(lang) {
+		try {
+			localStorage.setItem('memos_lang', lang === 'en' ? 'en' : 'zh');
+		} catch (e) { /* ignore */ }
+		window.location.reload();
+	}
+	// 静态界面文本即时翻译（脚本位于 HTML 之后，DOM 已可用）
+	(function applyStaticI18n() {
+		if (I18N_LANG !== 'zh') return;
+		const tabMap = { all: '✨ 全部', image: '🏞️ 图片', video: '🎬 视频', file: '📄 文件' };
+		document.querySelectorAll('.attachments-tabs .tab-btn').forEach(btn => {
+			const label = tabMap[btn.dataset.filter];
+			if (label) btn.textContent = label;
+		});
+		const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+		const textNodes = [];
+		while (walker.nextNode()) textNodes.push(walker.currentNode);
+		textNodes.forEach(node => {
+			const raw = node.nodeValue;
+			if (!raw) return;
+			const trimmed = raw.trim();
+			if (!trimmed) return;
+			const translated = T(trimmed);
+			if (translated !== trimmed) {
+				node.nodeValue = raw.replace(trimmed, translated);
+			}
+		});
+		document.body.querySelectorAll('[title], [placeholder]').forEach(el => {
+			if (el.hasAttribute('title')) {
+				const titleValue = el.getAttribute('title').trim();
+				const titleTranslated = T(titleValue);
+				if (titleTranslated !== titleValue) el.setAttribute('title', titleTranslated);
+			}
+			if (el.hasAttribute('placeholder')) {
+				const phValue = el.getAttribute('placeholder').trim();
+				const phTranslated = T(phValue);
+				if (phTranslated !== phValue) el.setAttribute('placeholder', phTranslated);
+			}
+		});
+	})();
+	// ================= 国际化支持结束 =================
 	// --- 配置 marked.js ---
 	const renderer = new marked.Renderer();
 	const NOTE_TRUNCATE_LENGTH = 800; // 笔记折叠的字数阈值
@@ -3768,7 +4053,7 @@
 		};
 
 		const copyButtonHtml = `
-							<button class='copy-code-btn' data-code='${escapeHtml(code)}' title='Copy code'>
+							<button class='copy-code-btn' data-code='${escapeHtml(code)}' title='${T('Copy code')}'>
 									<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='9' y='9' width='13' height='13' rx='2' ry='2'></rect><path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'></path></svg>
 							</button>
 					`;
@@ -3830,12 +4115,12 @@
 			const header = document.createElement('div');
 			header.className = 'calendar-header';
 			header.innerHTML = `
-                <button id='calendar-prev' class='calendar-nav-btn' title='Previous month'>◄</button>
-                <span id='calendar-month-year'>${this.currentDate.toLocaleString('en-US', {
+                <button id='calendar-prev' class='calendar-nav-btn' title='${T('Previous month')}'>◄</button>
+                <span id='calendar-month-year'>${this.currentDate.toLocaleString(I18N_LANG === 'zh' ? 'zh-CN' : 'en-US', {
 				month: 'long',
 				year: 'numeric'
 			})}</span>
-                <button id='calendar-next' class='calendar-nav-btn' title='Next month'>►</button>
+                <button id='calendar-next' class='calendar-nav-btn' title='${T('Next month')}'>►</button>
             `;
 			this.container.appendChild(header);
 			const nextMonthBtn = document.getElementById('calendar-next');
@@ -3846,7 +4131,7 @@
 
 			const grid = document.createElement('div');
 			grid.className = 'calendar-grid';
-			const dayNames = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+			const dayNames = I18N_LANG === 'zh' ? ['日', '一', '二', '三', '四', '五', '六'] : ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 			dayNames.forEach(name => {
 				const dayNameEl = document.createElement('div');
 				dayNameEl.className = 'calendar-day-name';
@@ -3913,8 +4198,8 @@
 					const dateStr = target.dataset.date;
 					const count = this.dataProvider.get(dateStr) || 0;
 					if (count > 0) {
-						const countText = count === 1 ? '1 note' : `${count} notes`;
-						calendarTooltip.textContent = `${countText} on ${dateStr}`;
+						const countText = notesCountLabel(count);
+						calendarTooltip.textContent = I18N_LANG === 'zh' ? `${dateStr}：${countText}` : `${countText} on ${dateStr}`;
 						calendarTooltip.style.display = 'block';
 					}
 				});
@@ -4117,15 +4402,15 @@
 				await navigator.clipboard.writeText(codeToCopy);
 				copyButton.innerHTML = successIcon;
 				copyButton.classList.add('copied');
-				copyButton.title = 'Copied!';
+				copyButton.title = T('Copied!');
 				setTimeout(() => {
 					copyButton.innerHTML = originalIcon;
 					copyButton.classList.remove('copied');
-					copyButton.title = 'Copy code';
+					copyButton.title = T('Copy code');
 				}, 2000);
 			} catch (err) {
 				console.error('Failed to copy text: ', err);
-				copyButton.title = 'Copy failed!';
+				copyButton.title = T('Copy failed!');
 			}
 		}
 	});
@@ -4339,7 +4624,7 @@
 		if (selectedValue === 'revoke') {
 			const confirmed = await showCustomConfirm('Are you sure you want to revoke the public links immediately? This action cannot be undone.');
 			if (confirmed) {
-				expirationStatus.textContent = 'Revoking...';
+				expirationStatus.textContent = T('Revoking...');
 				expirationSelect.disabled = true;
 				try {
 					const response = await fetch(`/api/notes/${noteId}/share`, { method: 'DELETE' });
@@ -4351,7 +4636,7 @@
 					showCustomAlert('Sharing has been successfully revoked.', 'info');
 				} catch (error) {
 					showCustomAlert(`Error: ${error.message}`, 'error');
-					expirationStatus.textContent = 'Error!';
+					expirationStatus.textContent = T('Error!');
 				} finally {
 					expirationSelect.disabled = false;
 				}
@@ -4364,7 +4649,7 @@
 
 		if (!noteId || !currentPublicId) return;
 
-		expirationStatus.textContent = 'Updating...';
+		expirationStatus.textContent = T('Updating...');
 		expirationSelect.disabled = true;
 
 		try {
@@ -4382,13 +4667,13 @@
 				throw new Error(err.error || 'Failed to update expiration.');
 			}
 
-			expirationStatus.textContent = 'Updated!';
+			expirationStatus.textContent = T('Updated!');
 			setTimeout(() => {
 				expirationStatus.textContent = '';
 			}, 2000);
 
 		} catch (error) {
-			expirationStatus.textContent = 'Error!';
+			expirationStatus.textContent = T('Error!');
 			showCustomAlert(`Error: ${error.message}`, 'error');
 		} finally {
 			expirationSelect.disabled = false;
@@ -4414,7 +4699,7 @@
 		try {
 			await navigator.clipboard.writeText(inputElement.value);
 			const originalText = buttonElement.textContent;
-			buttonElement.textContent = 'Copied!';
+			buttonElement.textContent = T('Copied!');
 			setTimeout(() => {
 				buttonElement.textContent = originalText;
 			}, 2000);
@@ -4522,7 +4807,7 @@
 					const res = await fetch(`/api/notes/${noteId}`, { method: 'PUT', body: formData });
 					if (!res.ok) throw new Error('Failed to update favorite status.');
 					actionButton.classList.toggle('favorited', newFavoriteState);
-					actionButton.title = newFavoriteState ? 'Unfavorite' : 'Favorite';
+					actionButton.title = newFavoriteState ? T('Unfavorite') : T('Favorite');
 					const noteInCache = allNotesCache.find(n => n.id === parseInt(noteId));
 					if (noteInCache) noteInCache.is_favorited = newFavoriteState;
 				} catch (error) {
@@ -4542,7 +4827,7 @@
 					const res = await fetch(`/api/notes/${noteId}`, { method: 'PUT', body: formData });
 					if (!res.ok) throw new Error('Failed to update pin status.');
 					actionButton.classList.toggle('pinned', newPinState);
-					actionButton.title = newPinState ? 'Unpin' : 'Pin';
+					actionButton.title = newPinState ? T('Unpin') : T('Pin');
 					const noteInCache = allNotesCache.find(n => n.id === parseInt(noteId));
 					if (noteInCache) noteInCache.is_pinned = newPinState;
 					await refreshNotes();
@@ -4744,7 +5029,7 @@
 		attachmentsState.isLoading = true;
 		const loader = document.createElement('div');
 		loader.className = 'loading-indicator';
-		loader.textContent = 'Loading...';
+		loader.textContent = T('Loading...');
 		attachmentsContent.appendChild(loader);
 
 		if (isInitialLoad) {
@@ -4768,7 +5053,7 @@
 			attachmentsState.currentPage++;
 		} catch (error) {
 			console.error(error);
-			attachmentsContent.innerHTML = '<p>Failed to load attachments.</p>';
+			attachmentsContent.innerHTML = '<p>' + T('Failed to load attachments.') + '</p>';
 		} finally {
 			attachmentsState.isLoading = false;
 			const existingLoader = attachmentsContent.querySelector('.loading-indicator');
@@ -4790,13 +5075,13 @@
 		});
 
 		if (isInitialLoad && filteredData.length === 0 && !attachmentsState.hasMore) {
-			attachmentsContent.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No items to display.</p>';
+			attachmentsContent.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">' + T('No items to display.') + '</p>';
 			return;
 		}
 
 		const groupedByMonth = attachmentsState.allData.reduce((acc, item) => {
 			const date = new Date(item.timestamp);
-			const monthKey = date.toLocaleString('en-US', { year: 'numeric', month: 'long' });
+			const monthKey = date.toLocaleString(I18N_LANG === 'zh' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'long' });
 			if (!acc[monthKey]) acc[monthKey] = [];
 			acc[monthKey].push(item);
 			return acc;
@@ -4816,19 +5101,19 @@
 		// 只将新获取的数据项添加到对应的网格中
 		filteredData.forEach(item => {
 			const date = new Date(item.timestamp);
-			const monthKey = date.toLocaleString('en-US', { year: 'numeric', month: 'long' });
+			const monthKey = date.toLocaleString(I18N_LANG === 'zh' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'long' });
 			const gridEl = document.getElementById(`month-${monthKey.replace(/\s/g, '-')}`).querySelector('.attachments-grid');
 			const itemLink = document.createElement('a');
 			itemLink.dataset.noteId = item.noteId;
 			let shareButtonHTML = '', deleteButtonHTML = '';
 			if (item.type === 'file' && item.id) {
 				shareButtonHTML = `
-                <button class="share-file-btn icon-btn" title="Get public link" data-note-id="${item.noteId}" data-file-id="${item.id}">
+                <button class="share-file-btn icon-btn" title="${T("Get public link")}" data-note-id="${item.noteId}" data-file-id="${item.id}">
                     <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3z"/></svg>
                 </button>
             `;
 				deleteButtonHTML = `
-                <button class="delete-file-btn icon-btn" title="Delete file" data-note-id="${item.noteId}" data-file-id="${item.id}">
+                <button class="delete-file-btn icon-btn" title="${T("Delete file")}" data-note-id="${item.noteId}" data-file-id="${item.id}">
                     <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
                 </button>
                 `;
@@ -4837,7 +5122,7 @@
 				itemLink.href = item.url;
 				itemLink.className = 'attachment-item attachment-item-image';
 				itemLink.dataset.previewable = true;
-				itemLink.innerHTML = `<img src="${item.url}" loading="lazy" class="preview" alt="Image from note ${item.noteId}">`;
+				itemLink.innerHTML = `<img src="${item.url}" loading="lazy" class="preview" alt="${I18N_LANG === 'zh' ? `来自备忘 ${item.noteId} 的图片` : `Image from note ${item.noteId}`}">`;
 				gridEl.appendChild(itemLink);
 			} else if (item.type === 'video') {
 				const itemContainer = document.createElement('div');
@@ -5163,10 +5448,10 @@
 				// 处理加载更多的UI
 				if (!data.hasMore) {
 					if (allNotesCache.length > 0) {
-						scrollLoader.textContent = 'No more notes.';
+						scrollLoader.textContent = T('No more notes.');
 						scrollLoader.style.display = 'block';
 					} else {
-						notesContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 1rem 0;">Nothing here yet.</div>';
+						notesContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 1rem 0;">' + T('Nothing here yet.') + '</div>';
 						scrollLoader.style.display = 'none';
 					}
 				}
@@ -5179,7 +5464,7 @@
 			}
 		} catch (error) {
 			console.error('Initialization failed:', error);
-			document.body.innerHTML = 'Failed to initialize the application. Please check your connection and try again.';
+			document.body.innerHTML = T('Failed to initialize the application. Please check your connection and try again.');
 		} finally {
 			document.body.classList.remove('loading');
 			const initialLoader = document.getElementById('initial-loader');
@@ -5567,6 +5852,11 @@
 	}
 
 	function initializeSettings() {
+		const languageSelect = document.getElementById('language-select');
+		if (languageSelect) {
+			languageSelect.value = I18N_LANG;
+			languageSelect.addEventListener('change', (e) => setI18nLanguage(e.target.value));
+		}
 		document.getElementById('toggle-feature-favorites').addEventListener('change', (e) => {
 			settings.showFavorites = e.target.checked;
 			applyFeatureVisibilitySettings();
@@ -5988,7 +6278,7 @@
 
 		} catch (error) {
 			console.error('Error loading heatmap:', error);
-			heatmapContainerWrapper.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-secondary);">Could not load activity data.</p>';
+			heatmapContainerWrapper.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-secondary);">' + T('Could not load activity data.') + '</p>';
 		}
 	}
 
@@ -5998,9 +6288,8 @@
 		if (dayElement) {
 			const date = dayElement.dataset.date;
 			const count = dayElement.dataset.count;
-			const countText = count === '1' ? '1 note' : `${count} notes`;
-
-			heatmapTooltip.textContent = `${countText} on ${date}`;
+			const countText = notesCountLabel(Number(count));
+			heatmapTooltip.textContent = I18N_LANG === 'zh' ? `${date}：${countText}` : `${countText} on ${date}`;
 			heatmapTooltip.style.display = 'block';
 		}
 	});
@@ -6301,11 +6590,11 @@
 				break;
 			}
 			case 'link':
-				const url = prompt('Enter the URL:', 'https://');
+				const url = prompt(T('Enter the URL:'), 'https://');
 				if (url) applyMarkdown('[', `](${url})`);
 				break;
 			case 'image':
-				const imgUrl = prompt('Enter the image URL:');
+				const imgUrl = prompt(T('Enter the image URL:'));
 				if (imgUrl) applyMarkdown('![', `](${imgUrl})`);
 				break;
 			case 'code':
@@ -6350,7 +6639,7 @@
 	fsSaveBtn.addEventListener('click', async () => {
 		const content = fsEditorTextarea.value;
 		fsSaveBtn.disabled = true;
-		fsSaveBtn.textContent = 'Saving...';
+		fsSaveBtn.textContent = T('Saving...');
 
 		try {
 			if (currentEditingNoteId === null) {
@@ -6360,7 +6649,7 @@
 					showCustomAlert('Content or a file is required.', 'error');
 					// 恢復按鈕狀態
 					fsSaveBtn.disabled = false;
-					fsSaveBtn.textContent = 'Save';
+					fsSaveBtn.textContent = T('Save');
 					return; // 提前返回
 				}
 
@@ -6385,7 +6674,7 @@
 					showCustomAlert(error.message, 'error');
 				} finally {
 					fsSaveBtn.disabled = false;
-					fsSaveBtn.textContent = 'Save';
+					fsSaveBtn.textContent = T('Save');
 				}
 
 			} else { // 编辑现有笔记
@@ -6396,7 +6685,7 @@
 				}
 
 				fsSaveBtn.disabled = true;
-				fsSaveBtn.textContent = 'Saving...';
+				fsSaveBtn.textContent = T('Saving...');
 				const formData = new FormData();
 				// 1. 添加从全屏编辑器获取的新内容
 				formData.append('content', content);
@@ -6425,14 +6714,14 @@
 					showCustomAlert(error.message, 'error');
 				} finally {
 					fsSaveBtn.disabled = false;
-					fsSaveBtn.textContent = 'Save';
+					fsSaveBtn.textContent = T('Save');
 				}
 			}
 		} catch (error) {
 			showCustomAlert(error.message, 'error');
 		} finally {
 			fsSaveBtn.disabled = false;
-			fsSaveBtn.textContent = 'Save';
+			fsSaveBtn.textContent = T('Save');
 		}
 	});
 
@@ -6446,9 +6735,9 @@
 		const sunIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">' +
 			'<path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l1.06 1.06c.39.39 1.02.39 1.41 0s.39-1.02 0-1.41L5.99 4.58zm12.02 12.02c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l1.06 1.06c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41l-1.06-1.06zM20 6.01c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.02 0 1.41s1.02.39 1.41 0l1.06-1.06zM7.05 18.01c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.02 0 1.41s1.02.39 1.41 0l1.06-1.06z">' +
 			'</path>' +
-			'</svg><span>Light Mode</span>';
+			'</svg><span>' + T('Light Mode') + '</span>';
 		const moonIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10 2c-1.82 0-3.53.5-5 1.35C7.99 5.08 10 8.3 10 12s-2.01 6.92-5 8.65C6.47 21.5 8.18 22 10 22c5.52 0 10-4.48 10-10S15.52 2 10 2z">' +
-			'</path></svg><span>Dark Mode</span>';
+			'</path></svg><span>' + T('Dark Mode') + '</span>';
 		themeToggleBtn.innerHTML = theme === 'dark' ? sunIcon : moonIcon;
 		document.getElementById('hljs-light-theme').disabled = (theme === 'dark');
 		document.getElementById('hljs-dark-theme').disabled = (theme !== 'dark');
@@ -6516,7 +6805,7 @@
 
 		clearTimeout(toastTimer); // 如果已有提示，则重置计时器
 
-		toast.textContent = message;
+		toast.textContent = trMessage(message);
 		toast.className = ''; // 重置类
 		toast.classList.add(`toast-${type}`);
 
@@ -6570,15 +6859,15 @@
 		if (diffMs < TWENTY_FOUR_HOURS_MS) {
 			const secondsAgo = Math.floor(diffMs / 1000);
 			if (secondsAgo < 60) {
-				return { relative: 'Just now', absolute: absoluteTime };
+				return { relative: T('Just now'), absolute: absoluteTime };
 			}
 			const minutesAgo = Math.floor(secondsAgo / 60);
 			if (minutesAgo < 60) {
-				const relativeTime = `${minutesAgo} ${minutesAgo === 1 ? 'minute' : 'minutes'} ago`;
+				const relativeTime = I18N_LANG === 'zh' ? `${minutesAgo} 分钟前` : `${minutesAgo} ${minutesAgo === 1 ? 'minute' : 'minutes'} ago`;
 				return { relative: relativeTime, absolute: absoluteTime };
 			}
 			const hoursAgo = Math.floor(minutesAgo / 60);
-			const relativeTime = `${hoursAgo} ${hoursAgo === 1 ? 'hour' : 'hours'} ago`;
+			const relativeTime = I18N_LANG === 'zh' ? `${hoursAgo} 小时前` : `${hoursAgo} ${hoursAgo === 1 ? 'hour' : 'hours'} ago`;
 			return { relative: relativeTime, absolute: absoluteTime };
 		}
 		return { relative: absoluteTime, absolute: absoluteTime };
@@ -6871,7 +7160,7 @@
 	};
 
 	function showCustomAlert(message, type = 'info') {
-		customAlertMessage.textContent = message;
+		customAlertMessage.textContent = trMessage(message);
 		customAlertBox.dataset.type = type;
 		customConfirmBox.classList.remove('active');
 		customAlertBox.classList.add('active');
@@ -6881,7 +7170,7 @@
 
 	function showCustomConfirm(message) {
 		return new Promise(resolve => {
-			customConfirmMessage.textContent = message;
+			customConfirmMessage.textContent = trMessage(message);
 			customAlertBox.classList.remove('active'); // Hide alert box if open
 			customConfirmBox.classList.add('active');
 			customModalOverlay.classList.add('visible');
@@ -6906,7 +7195,7 @@
 			const cancelBtn = document.getElementById('merge-confirm-cancel-btn');
 			const separatorCheckbox = document.getElementById('merge-add-separator');
 
-			messageP.textContent = message;
+			messageP.textContent = trMessage(message);
 			customAlertBox.classList.remove('active');
 			customConfirmBox.classList.remove('active');
 			mergeBox.classList.add('active');
@@ -7137,7 +7426,7 @@
 		if (filteredTags.length === 0) {
 			const li = document.createElement('li');
 			li.className = 'no-results';
-			li.textContent = filter ? 'No tags found' : 'No tags yet';
+			li.textContent = filter ? T('No tags found') : T('No tags yet');
 			tagDropdownList.appendChild(li);
 			return;
 		}
@@ -7210,7 +7499,7 @@
 		const btn = document.getElementById('login-btn');
 		const err = document.getElementById('login-error');
 		btn.disabled = true;
-		btn.textContent = 'Logging in...';
+		btn.textContent = T('Logging in...');
 		err.textContent = '';
 		try {
 			const res = await fetch('/api/login', {
@@ -7221,10 +7510,10 @@
 			if (!res.ok) throw new Error('Invalid username or password.');
 			initializeApp();
 		} catch (error) {
-			err.textContent = error.message;
+			err.textContent = trMessage(error.message);
 		} finally {
 			btn.disabled = false;
-			btn.textContent = 'Login';
+			btn.textContent = T('Login');
 		}
 	});
 
@@ -7242,7 +7531,7 @@
 		const isAppending = page > 1;
 		const currentLoader = isAppending ? scrollLoader : refreshLoader;
 		if (isAppending) {
-			currentLoader.textContent = 'Loading more...';
+			currentLoader.textContent = T('Loading more...');
 		}
 		currentLoader.style.display = isAppending ? 'block' : 'flex';
 		try {
@@ -7289,10 +7578,10 @@
 				scrollLoader.style.display = 'none';
 			} else {
 				if (allNotesCache.length > 0) {
-					scrollLoader.textContent = 'No more notes.';
+					scrollLoader.textContent = T('No more notes.');
 					scrollLoader.style.display = 'block';
 				} else {
-					notesContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 1rem 0;">Nothing here yet.</div>';
+					notesContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 1rem 0;">' + T('Nothing here yet.') + '</div>';
 					scrollLoader.style.display = 'none';
 				}
 			}
@@ -7343,7 +7632,7 @@
 		// 	editedIndicatorHtml = ` ·&nbsp;<span class="note-edited-indicator" title="Edited at: ${editedTime.absolute}">edited</span>`;
 		// }
 		const pinnedIconHTML = note.is_pinned ? `
-				<button class='unpin-btn icon-btn pinned' title='Unpin'>
+				<button class='unpin-btn icon-btn pinned' title='${T('Unpin')}'>
 						<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' stroke-width='2' stroke='currentColor' fill='currentColor' stroke-linecap='round' stroke-linejoin='round'>
 								<path stroke='none' d='M0 0h24v24H0z' fill='none'></path>
 								<path d='M9 4v6l-2 4v2h10v-2l-2 -4v-6'></path>
@@ -7358,12 +7647,12 @@
 			note.files.forEach(file => {
 				const fileUrl = `/api/files/${noteId}/${file.id}`;
 				const shareButtonHTML = `
-            <button class="share-file-btn icon-btn" title="Get public link" data-note-id="${noteId}" data-file-id="${file.id}">
+            <button class="share-file-btn icon-btn" title="${T("Get public link")}" data-note-id="${noteId}" data-file-id="${file.id}">
                 <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3z"/></svg>
             </button>
         `;
 				const deleteButtonHTML = `
-						<button class="delete-file-btn icon-btn" title="Delete file" data-note-id="${noteId}" data-file-id="${file.id}">
+						<button class="delete-file-btn icon-btn" title="${T("Delete file")}" data-note-id="${noteId}" data-file-id="${file.id}">
 							<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
 						</button>
 					`;
@@ -7400,10 +7689,10 @@
 									</div>
 											<div class='note-actions view-mode'>
 													${pinnedIconHTML}
-													<button class='edit icon-btn' title='Edit'>
+													<button class='edit icon-btn' title='${T('Edit')}'>
 															<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'><path d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z'></path></svg>
 													</button>
-													<button class='more-actions-btn icon-btn' title='More actions'>
+													<button class='more-actions-btn icon-btn' title='${T('More actions')}'>
 															 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
 													</button>
 											</div>
@@ -7411,27 +7700,27 @@
 <!--													<svg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 0 24 24' width='24px' fill='currentColor'><path d='M0 0h24v24H0V0z' fill='none'/><path d='M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z'/></svg>-->
 <!--											</button>-->
 											<div class='edit-actions edit-mode'>
-													<label class="timestamp-toggle-label" title="If checked, the note's timestamp will not be updated upon saving.">
+													<label class="timestamp-toggle-label" title="${T("If checked, the note's timestamp will not be updated upon saving.")}">
 															<input type="checkbox" class="update-timestamp-toggle" checked>
 															<span>Keep Time</span>
 													</label>
-													<label class='icon-btn' title='Add files'>
+													<label class='icon-btn' title='${T('Add files')}'>
 															<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'><path d='M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z'></path></svg>
 															<input type='file' class='edit-file-input' multiple style='display:none;'>
 													</label>
-													<button class='md-preview-toggle-btn icon-btn' title='Toggle Preview'>
+													<button class='md-preview-toggle-btn icon-btn' title='${T('Toggle Preview')}'>
 															<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' stroke-width='2' stroke='currentColor' fill='none' stroke-linecap='round' stroke-linejoin='round'><path stroke='none' d='M0 0h24v24H0z' fill='none'/><circle cx='12' cy='12' r='2' /><path d='M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7' /></svg>
 													</button>
-													<button class='md-split-toggle-btn icon-btn' title='Toggle Split View' style='display: none;'>
+													<button class='md-split-toggle-btn icon-btn' title='${T('Toggle Split View')}' style='display: none;'>
 															<svg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 0 24 24' width='24px' fill='currentColor'><path d='M0 0h24v24H0V0z' fill='none'></path><path d='M3 15h8v-2H3v2zm0 4h8v-2H3v2zm0-8h8V9H3v2zm0-6v2h8V5H3zm10 0h8v14h-8V5z'></path></svg>
 													</button>
-													<button class='fullscreen-edit icon-btn' title='Fullscreen Edit'>
+													<button class='fullscreen-edit icon-btn' title='${T('Fullscreen Edit')}'>
 															<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'><path d='M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z'></path></svg>
 													</button>
-													<button class='save-edit icon-btn btn-accent' title='Save'>
+													<button class='save-edit icon-btn btn-accent' title='${T('Save')}'>
 															<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'><path d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'></path></svg>
 													</button>
-													<button class='cancel-edit icon-btn' title='Cancel'>
+													<button class='cancel-edit icon-btn' title='${T('Cancel')}'>
 															<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'><path d='M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z'></path></svg>
 													</button>
 											</div>
@@ -7440,7 +7729,7 @@
 									${attachmentsHTML}
     							<button class='toggle-content-btn'>Show more</button>
 									<div class='edit-area edit-mode'>
-											<textarea class='edit-textarea' placeholder='Memos here...'></textarea>
+											<textarea class='edit-textarea' placeholder='${T('Memos here...')}'></textarea>
 											<div class='edit-preview note-content'></div>
 									</div>
 
@@ -7478,7 +7767,7 @@
 				// 为置顶区域添加一个标题/分隔符
 				const pinnedHeader = document.createElement('div');
 				pinnedHeader.className = 'pinned-section-header';
-				pinnedHeader.textContent = 'Pinned';
+				pinnedHeader.textContent = T('Pinned');
 				pinnedContainer.appendChild(pinnedHeader);
 
 				// 循环渲染所有置顶笔记
@@ -7827,7 +8116,7 @@
 
 		const btn = e.target.querySelector('button[type="submit"]');
 		btn.disabled = true;
-		btn.textContent = 'Saving...';
+		btn.textContent = T('Saving...');
 
 		const formData = new FormData();
 		formData.append('content', noteInput.value);
@@ -7850,7 +8139,7 @@
 			showCustomAlert(error.message, 'error');
 		} finally {
 			btn.disabled = false;
-			btn.textContent = 'Save';
+			btn.textContent = T('Save');
 		}
 	});
 
@@ -7934,9 +8223,9 @@
 			if (noteElement) {
 				noteElement.classList.toggle('is-expanded');
 				if (noteElement.classList.contains('is-expanded')) {
-					target.textContent = 'Collapse';
+					target.textContent = T('Collapse');
 				} else {
-					target.textContent = 'Show more';
+					target.textContent = T('Show more');
 				}
 			}
 			return;
@@ -8404,7 +8693,7 @@
 
 		} catch (error) {
 			console.error('Error loading timeline:', error);
-			timelineContainer.innerHTML = '<p>Error loading timeline.</p>';
+			timelineContainer.innerHTML = '<p>' + T('Error loading timeline.') + '</p>';
 		}
 	}
 
@@ -8424,7 +8713,7 @@
 		let filterButtonHtml = '';
 		if (isExpandable) {
 			filterButtonHtml = `
-                <button class='timeline-filter-btn' title='Filter notes for ${label}'>
+                <button class='timeline-filter-btn' title='${I18N_LANG === 'zh' ? `筛选 ${label} 的备忘` : `Filter notes for ${label}`}'>
                     <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 4.5h18'/><path d='M3 9.5h18'/><path d='M3 14.5h18'/><path d='M3 19.5h18'/></svg>
                 </button>
             `;
@@ -8531,13 +8820,13 @@
 			const listElement = tagsContainer.querySelector('ul');
 
 			if (tags.length === 0) {
-				listElement.innerHTML = '<li><div class="tag-item-placeholder">No tags yet.</div></li>';
+				listElement.innerHTML = '<li><div class="tag-item-placeholder">' + T('No tags yet.') + '</div></li>';
 				return;
 			}
 			tags.forEach(tag => {
 				const tagLi = document.createElement('li');
 				tagLi.innerHTML = `
-                    <div class='tag-item' data-tag-name='${tag.name}' title='Filter by tag: #${tag.name}'>
+                    <div class='tag-item' data-tag-name='${tag.name}' title='${I18N_LANG === 'zh' ? `按标签筛选：#${tag.name}` : `Filter by tag: #${tag.name}`}'>
                         <span class='tag-label'>
                             <span class='tag-hash'>#</span>
                             <span class='tag-name'>${tag.name}</span>
@@ -8549,7 +8838,7 @@
 			});
 		} catch (error) {
 			console.error('Error loading tags:', error);
-			tagsContainer.innerHTML = '<p>Error loading tags.</p>';
+			tagsContainer.innerHTML = '<p>' + T('Error loading tags.') + '</p>';
 		}
 	}
 
