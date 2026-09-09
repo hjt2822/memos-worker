@@ -284,7 +284,73 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
 <script src="https://unpkg.com/quilljs-markdown@latest/dist/quilljs-markdown.js"></script>
-<script>
+ <script>
+	// ================= 国际化支持（默认中文，与主界面同步） =================
+	const I18N_LANG = (() => {
+		try {
+			const saved = localStorage.getItem('memos_lang');
+			return saved === 'en' ? 'en' : 'zh';
+		} catch (e) {
+			return 'zh';
+		}
+	})();
+	const I18N_ZH = {
+		"Docs": "知识库",
+		"Outline": "大纲",
+		"Save": "保存",
+		"Saved": "已保存",
+		"Saving...": "保存中...",
+		"Error": "出错",
+		"Rename": "重命名",
+		"Move (Drag & Drop)": "移动（拖拽）",
+		"Delete": "删除",
+		"Create Doc": "新建文档",
+		"Create Folder": "新建文件夹",
+		"Toggle Theme": "切换主题",
+		"Back to Home": "返回主页",
+		"New name:": "新名称：",
+		"New doc name:": "新文档名称：",
+		"New folder name:": "新文件夹名称：",
+		"An unknown API error occurred": "发生未知 API 错误",
+		"Imgur Client ID is not configured in Memos settings.": "未在 Memos 设置中配置 Imgur Client ID。",
+		"Failed to load Memos settings, defaulting to local upload:": "加载 Memos 设置失败，已回退为本地上传：",
+		"Image upload failed:": "图片上传失败：",
+		"[Uploading image...]": "[图片上传中...]",
+		"[Image upload failed]": "[图片上传失败]"
+	};
+	function T(text) {
+		if (I18N_LANG === 'zh') {
+			return Object.prototype.hasOwnProperty.call(I18N_ZH, text) ? I18N_ZH[text] : text;
+		}
+		return text;
+	}
+	(function applyStaticI18n() {
+		if (I18N_LANG !== 'zh') return;
+		const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+		const textNodes = [];
+		while (walker.nextNode()) textNodes.push(walker.currentNode);
+		textNodes.forEach(node => {
+			const raw = node.nodeValue;
+			if (!raw) return;
+			const trimmed = raw.trim();
+			if (!trimmed) return;
+			const translated = T(trimmed);
+			if (translated !== trimmed) node.nodeValue = raw.replace(trimmed, translated);
+		});
+		document.body.querySelectorAll('[title], [placeholder]').forEach(el => {
+			if (el.hasAttribute('title')) {
+				const v = el.getAttribute('title').trim();
+				const m = T(v);
+				if (m !== v) el.setAttribute('title', m);
+			}
+			if (el.hasAttribute('placeholder')) {
+				const v = el.getAttribute('placeholder').trim();
+				const m = T(v);
+				if (m !== v) el.setAttribute('placeholder', m);
+			}
+		});
+	})();
+	// ================= 国际化支持结束 =================
 	// --- MOCK API (UNCHANGED FROM PREVIOUS MERGE) ---
 	const mockData = {
 		tree: [
@@ -319,7 +385,7 @@
 		if (!response.ok) {
 			// Try to parse a JSON error message from the backend, otherwise use status text
 			const errorData = await response.json().catch(() => ({ message: response.statusText }));
-			throw new Error(errorData.message || 'An unknown API error occurred');
+ 			throw new Error(errorData.message || T('An unknown API error occurred'));
 		}
 		// For DELETE requests or other successful requests with no content
 		if (response.status === 204) {
@@ -412,7 +478,7 @@
 
 				} else if (destination === 'imgur') {
 					if (!userSettings.imgurClientId) {
-						throw new Error("Imgur Client ID is not configured in Memos settings.");
+ 						throw new Error(T("Imgur Client ID is not configured in Memos settings."));
 					}
 					const formData = new FormData();
 					formData.append('file', file);
@@ -803,7 +869,7 @@
 			editor.on('text-change', (delta, oldDelta, source) => {
 				if (source === 'user' && activeNoteId && saveBtn.disabled) {
 					saveBtn.disabled = false;
-					saveBtn.innerHTML = "<i class='fas fa-save'></i> Save";
+					saveBtn.innerHTML = "<i class='fas fa-save'></i> " + T('Save');
 				}
 				setTimeout(updateOutline, 300);
 				if (source === 'user') {
@@ -838,7 +904,7 @@
 					if (!range) return;
 
 					// 1. Insert a placeholder
-					const placeholderText = '[Uploading image...]';
+					const placeholderText = T('[Uploading image...]');
 					editor.insertText(range.index, placeholderText, 'user');
 					const placeholderLength = placeholderText.length;
 
@@ -855,7 +921,7 @@
 						// 4. Handle upload failure
 						console.error('Image upload failed:', error);
 						editor.deleteText(range.index, placeholderLength, 'user');
-						editor.insertText(range.index, '[Image upload failed]', { 'color': 'red' }, 'user');
+						editor.insertText(range.index, T('[Image upload failed]'), { 'color': 'red' }, 'user');
 					}
 				}
 			});
@@ -870,7 +936,7 @@
 			await refreshFileTree();
 			const firstFile = flatNodes.find(node => node.type === 'file');
 			if (firstFile) await loadNote(firstFile.id);
-			else { quill.root.innerHTML = '<h1>NO docs</h1><p>Create a new note to get started.</p>'; setEditorEditable(false); }
+			else { quill.root.innerHTML = I18N_LANG === 'zh' ? '<h1>暂无文档</h1><p>新建一篇文档开始使用吧。</p>' : '<h1>NO docs</h1><p>Create a new note to get started.</p>'; setEditorEditable(false); }
 		}
 		async function loadNote(noteId) {
 			if (!noteId || noteId === activeNoteId) return;
@@ -883,7 +949,7 @@
 				quill.root.innerHTML = note.content || '';
 				updateOutline();
 				saveBtn.disabled = true;
-				saveBtn.innerHTML = '<i class=\'fas fa-check\'></i> Saved';
+				saveBtn.innerHTML = '<i class=\'fas fa-check\'></i> ' + T('Saved');
 			} catch (error) {
 				quill.root.innerHTML = `<h1>加载失败</h1><p>${error.message}</p>`;
 				activeNoteId = null;
@@ -895,18 +961,18 @@
 			if (!activeNoteId || saveBtn.disabled) return;
 			const content = quill.root.innerHTML;
 			saveBtn.disabled = true;
-			saveBtn.innerHTML = '<i class=\'fas fa-spinner fa-spin\'></i> Saving...';
+			saveBtn.innerHTML = '<i class=\'fas fa-spinner fa-spin\'></i> ' + T('Saving...');
 			try {
 				await api.saveNode(activeNoteId, content);
-				saveBtn.innerHTML = '<i class=\'fas fa-check\'></i> Saved';
+				saveBtn.innerHTML = '<i class=\'fas fa-check\'></i> ' + T('Saved');
 			} catch (error) {
-				saveBtn.innerHTML = '<i class=\'fas fa-times\'></i> Error';
-				setTimeout(() => { saveBtn.disabled = false; saveBtn.innerHTML = '<i class=\'fas fa-save\'></i> Save'; }, 2000);
+				saveBtn.innerHTML = '<i class=\'fas fa-times\'></i> ' + T('Error');
+				setTimeout(() => { saveBtn.disabled = false; saveBtn.innerHTML = '<i class=\'fas fa-save\'></i> ' + T('Save'); }, 2000);
 			}
 		}
 		async function handleDelete(nodeId) {
 			const nodeToDelete = flatNodes.find(n => n.id === nodeId);
-			if (!nodeToDelete || !confirm(`delete "${nodeToDelete.title}"?`)) return;
+			if (!nodeToDelete || !confirm(I18N_LANG === 'zh' ? `确认删除“${nodeToDelete.title}”？` : `delete "${nodeToDelete.title}"?`)) return;
 			await api.deleteNode(nodeId);
 			await refreshFileTree();
 			if (nodeId === activeNoteId) {
@@ -918,7 +984,7 @@
 		async function handleRename(nodeId) {
 			const nodeToRename = flatNodes.find(n => n.id === nodeId);
 			if (!nodeToRename) return;
-			const newTitle = prompt('New name:', nodeToRename.title);
+			const newTitle = prompt(T('New name:'), nodeToRename.title);
 			if (newTitle && newTitle.trim() && newTitle.trim() !== nodeToRename.title) {
 				await api.renameNode(nodeId, newTitle.trim());
 				await refreshFileTree();
@@ -961,8 +1027,8 @@
 			renameBtn.addEventListener('click', () => handleRename(selectedNodeId));
 			deleteBtn.addEventListener('click', () => handleDelete(selectedNodeId));
 			document.addEventListener('click', () => contextMenu.style.display = 'none');
-			newNoteBtn.addEventListener('click', async () => { const name = prompt('New doc name:'); if (name) { await api.createNode({type: 'file', title: name, parent_id: getParentIdForNewNode()}); await refreshFileTree(); } });
-			newFolderBtn.addEventListener('click', async () => { const name = prompt('New folder name:'); if (name) { await api.createNode({type: 'folder', title: name, parent_id: getParentIdForNewNode()}); await refreshFileTree(); } });
+			newNoteBtn.addEventListener('click', async () => { const name = prompt(T('New doc name:')); if (name) { await api.createNode({type: 'file', title: name, parent_id: getParentIdForNewNode()}); await refreshFileTree(); } });
+			newFolderBtn.addEventListener('click', async () => { const name = prompt(T('New folder name:')); if (name) { await api.createNode({type: 'folder', title: name, parent_id: getParentIdForNewNode()}); await refreshFileTree(); } });
 			fileTreeEl.addEventListener('click', e => {
 				const target = e.target.closest('.tree-item'); if (!target) return;
 				const id = target.dataset.id;
